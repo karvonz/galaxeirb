@@ -18,6 +18,9 @@
 #include "esUtil.h"
 #include <stdio.h>
 #include <math.h>
+#include <utility>
+#define __NO_STD_VECTOR // Use cl::vector instead of STL version
+#include <CL/cl.hpp>
 //#include <omp.h>
 
 
@@ -200,7 +203,7 @@ int Init ( ESContext *esContext )
 {
    esContext->userData = (UserData*) malloc(sizeof(UserData));
 
-   UserData *userData = esContext->userData;
+   UserData *userData = (UserData*) esContext->userData;
    GLbyte vShaderStr[] =  
       "attribute vec4 vPosition;    \n"
       "void main()                  \n"

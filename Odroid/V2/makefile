@@ -6,7 +6,7 @@ CFLAGS 		= -W -Wall -O3 -fopenmp
 
 LINKER 		= g++ -o
 
-LFLAGS 		= -Wall -lGLESv2 -lEGL -lm -lX11 #-lEGL #-lSDL2# -fopenmp #-lGLEW -lGL -lGLU -lGLESv2
+LFLAGS 		= -Wall -lGLESv2 -lEGL -lm -lOpenCL -lX11 #-lEGL #-lSDL2# -fopenmp #-lGLEW -lGL -lGLU -lGLESv2
 
 SRCDIR 		= src
 OBJDIR 		= obj

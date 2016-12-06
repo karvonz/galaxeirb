@@ -18,6 +18,9 @@
 #include "esUtil.h"
 #include <stdio.h>
 #include <math.h>
+#include <utility>
+#define __NO_STD_VECTOR // Use cl::vector instead of STL version
+#include <CL/cl.h>
 //#include <omp.h>
 
 
