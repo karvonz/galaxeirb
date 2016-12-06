@@ -1,0 +1,13 @@
+#define N_PARTICULE 2048
+#define MODULO 40
+
+typedef struct particule_t
+{
+	float m;
+	float px;
+	float py;
+	float pz;
+	float vx;
+	float vy;
+	float vz;
+} particule;

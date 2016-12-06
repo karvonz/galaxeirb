@@ -1,0 +1,36 @@
+#include "cuda.h"
+#include "particle.h"
+#include "kernel.cuh"
+#include <math.h>
+#include <stdio.h>
+
+
+__global__ void kernel_updateGalaxy( particule *list, float (*acceleration)[3]  ) {
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	int j;
+	if (i<N_PARTICULE)
+	{
+		acceleration[i][0]=0.0f;
+		acceleration[i][1]=0.0f;
+		acceleration[i][2]=0.0f;
+	//printf("m=%f , px=%f\n", list[i].m, list[i].px);
+		for (j=0; j<N_PARTICULE; j++){
+			float dx,dy, dz;	
+			float dist, coef;
+			dx=list[j].px-list[i].px;
+			dy=list[j].py-list[i].py;
+			dz=list[j].pz-list[i].pz;	
+			dist = sqrtf(dx*dx+dy*dy+dz*dz);
+			if (dist < 1.0f)
+				dist= 1.0f;
+			coef= list[j].m / (dist* dist * dist) ;
+			acceleration[i][0] += dx * coef;
+			acceleration[i][1] += dy * coef;
+			acceleration[i][2] += dz * coef;
+		}
+	}
+}
+
+void updateGalaxy( int nblocks, int nthreads, particule *list, float (*acceleration)[3] ) {
+	kernel_updateGalaxy<<<nblocks, nthreads>>>( list, acceleration );
+}

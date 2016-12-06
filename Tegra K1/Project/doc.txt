@@ -1,0 +1,15 @@
+V01 40fps
+V01..2 120fps 1024Particules (OpenMP, -O3, opti makefile)
+cudaversion 170 FPS (structure in/out)
+cudaversion2 220 fps (float3 sans structure)
+cudaversion4 1100 fps (float4, calcul position dans cuda mise a jour position dans main)
+cudaversion5 1200 fps (mise a jour de position dans cuda)
+cudaversion6 1300 fps (variable partagé cuda shared)
+
+
+
+1024 thread bloqué a 270fps avec option debugage -G (plante sans)
+256 threads sans -G ~1000fps (float3)
+256 float4 1150 fps
+pas damelioration notable en changeant le nombre de threads
+
