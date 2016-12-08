@@ -16,14 +16,48 @@
                             "  "
                             "} ";
   
-   int
-   main(void)
+   int  main(void)
    {
-      cl_int err = CL_SUCCESS;
+
+cl_uint platformIdCount = 0;
+clGetPlatformIDs (0, NULL, &platformIdCount);
+
+std::vector<cl_platform_id> platformIds (platformIdCount);
+clGetPlatformIDs (platformIdCount, platformIds.data (), NULL);
+
+
+cl_uint deviceIdCount = 0;
+clGetDeviceIDs (platformIds [0], CL_DEVICE_TYPE_ALL, 0, NULL,
+    &deviceIdCount);
+std::vector<cl_device_id> deviceIds (deviceIdCount);
+clGetDeviceIDs (platformIds [0], CL_DEVICE_TYPE_ALL, deviceIdCount,
+    deviceIds.data (), NULL);
+
+
+	/*//get platform ID
+	cl_platform_id platform;
+	clGetPlatformIDs(1, &platform, NULL);
+	
+	//get first GPU device
+	cl_device_id device;
+	clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU, 1, &device, NULL);
+	printf("test\n");
+	//create context
+	cl_context context;
+	context=clCreateContext(NULL, 1, &device, NULL, NULL, NULL);
+*/
+
+	printf("test\n");
+     /* cl_int err = CL_SUCCESS;
       try {
- 
+ 	
+
+	
+
         std::vector<cl::Platform> platforms;
-        cl::Platform::get(&platforms);
+      
+	  cl::Platform::get(&platforms);
+	std::cout<<"test"<< std::endl;
         if (platforms.size() == 0) {
             std::cout << "Platform size 0\n";
             return -1;
@@ -62,7 +96,7 @@
             << err.err()
             << ")"
             << std::endl;
-      }
+      }*/
   
      return EXIT_SUCCESS;
    }
