@@ -1,0 +1,9 @@
+#include "galaxymath.h"
+
+vec3_t MathVec3Set( number x, number y, number z ) {
+	vec3_t v;
+	v.x = x;
+	v.y = y;
+	v.z = z;
+	return v;
+}
