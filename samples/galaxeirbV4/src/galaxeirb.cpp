@@ -22,7 +22,7 @@ using namespace std;
 
 #define WORKDIMENSION 1
 
-
+GLint locColor;
 cl_context context = 0;
 cl_command_queue commandQueue = 0;
 cl_program program = 0;
@@ -72,6 +72,10 @@ void UpdateVertices (){
 	int j=0;
 	for(i=0 ; i<NB_PARTICLES*3 ; i=i+3  )
 	{
+		if(j%2)
+			glUniform1f(locColor, 1);
+		else
+			glUniform1f(locColor, 0);
 		vVertices[i]=popencl[j].x/64.0f;
 		vVertices[i+1]=popencl[j].y/64.0f;
 		vVertices[i+2]=popencl[j].z/64.0f;
@@ -188,9 +192,14 @@ int Init ( ESContext *esContext )
 		"}                            \n";
 
 	GLbyte fShaderStr[] =  
-		"precision mediump float;\n"\
+		"precision Color  int;\n"\
+		"uniform float Scale;\n"
 		"void main()                                  \n"
-		"{                                            \n"
+		"{  \n"
+			"if (Color == 0) \n"
+			"	gl_FragColor = vec4 ( 1.0, 0.0, 0.0, 1.0 );\n"
+			"else \n"
+			"	gl_FragColor = vec4 ( 1.0, 1.0, 0.0, 1.0 );\n"	                                     
 		"  gl_FragColor = vec4 ( 1.0, 0.0, 0.0, 1.0 );\n"
 		"}                                            \n";
 
@@ -220,6 +229,14 @@ int Init ( ESContext *esContext )
 
 	// Link the program
 	glLinkProgram ( programObject );
+
+	//Trouve la position de la variable color du shader
+	locColor = glGetUniformLocation(programObject, "Color");
+	if (locColor != -1)
+	{	
+   		printf("erreur de recuperation de la variable Uniform Color \n");
+		exit(0);
+	}
 
 	// Check the link status
 	glGetProgramiv ( programObject, GL_LINK_STATUS, &linked );

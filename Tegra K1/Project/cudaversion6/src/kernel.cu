@@ -126,10 +126,4 @@ void cudaComputeGalaxy(float4* pos, float4 * pdata, int width, int height)
 }
 
 #endif
-im3 grid(width / block.x, height / block.y, 1);
-    int sharedMemSize = BSIZE * sizeof(float4);
 
-    galaxyKernel<<<grid, block, sharedMemSize>>>(pos, pdata, width, height);
-}
-
-#endif

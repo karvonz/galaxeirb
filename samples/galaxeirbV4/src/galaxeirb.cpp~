@@ -8,6 +8,7 @@
 #include <math.h>
 #include <utility>
 #include <CL/cl.h>
+#include <sys/time.h>
 
 #define MODULO 80
 #define NB_PARTICLES (81920/MODULO)
@@ -15,6 +16,7 @@
 #define DT 0.01f
 #define M 2
 #define FILENAME "../dubinski.tab"
+#define MOYENNAGE 20
 
 using namespace std;
 
@@ -36,9 +38,14 @@ bool createMemoryObjectsSuccess = true;
 cl_float4* popencl;
 cl_float4* accopencl;
 
+	float fps = 0.0;
+	float fpstemp= 0.0;
+	int counter = 0;
+	float fpsmax = -10.0;
+	float fpsmin = 10000.0;
 
 
-
+	struct timeval begin, end;
 
 
 
@@ -65,9 +72,9 @@ void UpdateVertices (){
 	int j=0;
 	for(i=0 ; i<NB_PARTICLES*3 ; i=i+3  )
 	{
-		vVertices[i]=list[j].px/64.0f;
-		vVertices[i+1]=list[j].py/64.0f;
-		vVertices[i+2]=list[j].pz/64.0f;
+		vVertices[i]=popencl[j].x/64.0f;
+		vVertices[i+1]=popencl[j].y/64.0f;
+		vVertices[i+2]=popencl[j].z/64.0f;
 		j++;
 	}
 }
@@ -256,6 +263,8 @@ void Draw ( ESContext *esContext )
 size_t globalWorksize[1] = {NB_PARTICLES};
 
 
+	gettimeofday( &begin, NULL );
+
 	UserData *userData = (UserData*) esContext->userData;
 
 
@@ -365,16 +374,31 @@ size_t globalWorksize[1] = {NB_PARTICLES};
 		cerr << "Failed to map buffer. " << __FILE__ << ":"<< __LINE__ << endl;
 		return ;
 	}
-
+/*
 //a remplacer par appel direct au popencl pour eviter de réecrire
 	for(int i=0; i<NB_PARTICLES; i++)
 	{
-		list[i].px+=list[i].vx*DT;
-		list[i].py+=list[i].vy*DT;
-		list[i].pz+=list[i].vz*DT;
+		list[i].px=popencl[i].x;
+		list[i].py=popencl[i].y;
+		list[i].pz=popencl[i].z;
 
-	} 
+	} */
 
+		UpdateVertices();
+gettimeofday( &end, NULL );
+
+fps = (float)1.0f / ( ( end.tv_sec - begin.tv_sec ) * 1000000.0f + end.tv_usec - begin.tv_usec) * 1000000.0f;
+
+		counter++;
+		fpstemp+=fps;
+
+		if (counter == MOYENNAGE-1)
+		{
+			counter=0;
+			printf( "FPS : %.4f\n", fpstemp/(double)MOYENNAGE );
+			fpstemp=0.0f;
+			
+		}
 //liberation mémoire
 
 if (!checkSuccess(clEnqueueUnmapMemObject(commandQueue, memoryObjects[0], popencl, 0, NULL, NULL)))
@@ -388,7 +412,7 @@ if (!checkSuccess(clEnqueueUnmapMemObject(commandQueue, memoryObjects[0], popenc
 //Fin opencl
 
 
-	UpdateVertices();
+
 
 	// Set the viewport
 	glViewport ( 0, 0, esContext->width, esContext->height );
@@ -422,7 +446,7 @@ int main ( int argc, char *argv[] )
 	printf("ax=%f, ay=%f, az=%f\n", list[0].px, list[0].py,	list[0].pz);
 
 
-	UpdateVertices();
+	//UpdateVertices();
 
 
 ////////////////////////////////
@@ -524,6 +548,7 @@ int main ( int argc, char *argv[] )
 		accopencl[i].x = list[i].vx;
 		accopencl[i].y = list[i].vy;
 		accopencl[i].z = list[i].vz;
+		accopencl[i].w = list[i].m;
 		
 	}
 	
