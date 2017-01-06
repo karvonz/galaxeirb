@@ -1,0 +1,51 @@
+
+
+#define MODULO 80
+#define NB_PARTICLES (81920/MODULO)
+#define TO 0.5f
+#define DT 0.01f
+#define M 2
+//#include "math.h"
+
+
+
+__kernel void galaxeirb(__global float4 *p, __global float4* acceleration)
+{
+	 int i = get_global_id(0); 
+
+    int j;
+	if (i<NB_PARTICLES)
+	{
+		(acceleration[i]).x=0.0f;
+		(acceleration[i]).y=0.0f;
+		(acceleration[i]).z=0.0f;
+
+		for (j=0; j<NB_PARTICLES; j++){
+			float dx,dy, dz;	
+			float dist, coef;
+			dx=p[j].x-p[i].x;
+			dy=p[j].y-p[i].y;
+			dz=p[j].z-p[i].z;	
+			dist = sqrt(dx*dx+dy*dy+dz*dz);
+			if (dist < 1.0f)
+				dist= 1.0f;
+			coef= p[j].w / (dist* dist * dist) ;
+			(acceleration[i]).x += dx * coef;
+			(acceleration[i]).y += dy * coef;
+			(acceleration[i]).z += dz * coef;
+		}
+	}
+}
+
+
+
+__kernel void kernel_updatePos( float4 *p, float4 *vitesse)
+{
+	int i = get_global_id(0);
+	if (i<NB_PARTICLES)
+	{
+		p[i].x+=vitesse[i].x*DT;
+		p[i].y+=vitesse[i].y*DT;
+		p[i].z+=vitesse[i].z*DT;
+	}
+}
