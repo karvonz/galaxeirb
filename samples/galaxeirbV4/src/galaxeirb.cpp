@@ -22,7 +22,7 @@ using namespace std;
 
 #define WORKDIMENSION 1
 
-GLint locColor;
+
 cl_context context = 0;
 cl_command_queue commandQueue = 0;
 cl_program program = 0;
@@ -63,19 +63,47 @@ typedef struct particule_t
 } particule;
 
 int tailleFichier =0;
-GLfloat vVertices[3*NB_PARTICLES];
+GLfloat vVertices[4*NB_PARTICLES];
 particule *list = NULL;
+
+
+
+
+void setColor (){
+	
+
+for (int i=0; i <NB_PARTICLES; i++)
+	{
+
+		if (i*MODULO > 16384 && i*MODULO<32768)
+			vVertices[i*4+3] = 0.0f;
+		else if  (i*MODULO >= 40961 && i*MODULO < 49152) 
+			vVertices[i*4+3] = 0.0f;
+		else if ( i*MODULO >= 65536)
+			vVertices[i*4+3] = 0.0f;
+		else if (i*MODULO < 16384)
+			vVertices[i*4+3] = 1.0f;
+		else if  (i*MODULO>=32768 && i*MODULO<40961) 
+			vVertices[i*4+3] = 1.0f;
+		else if  (i*MODULO>=49152 && i*MODULO<65536) 
+			vVertices[i*4+3] = 1.0f;
+}
+
+
+
+
+}
+
 
 
 void UpdateVertices (){
 	int i;
 	int j=0;
-	for(i=0 ; i<NB_PARTICLES*3 ; i=i+3  )
+
+	for(i=0 ; i<NB_PARTICLES*4 ; i=i+4  )
 	{
-		if(j%2)
-			glUniform1f(locColor, 1);
-		else
-			glUniform1f(locColor, 0);
+
+
 		vVertices[i]=popencl[j].x/64.0f;
 		vVertices[i+1]=popencl[j].y/64.0f;
 		vVertices[i+2]=popencl[j].z/64.0f;
@@ -186,22 +214,30 @@ int Init ( ESContext *esContext )
 	UserData *userData = (UserData*) esContext->userData;
 	GLbyte vShaderStr[] =  
 		"attribute vec4 vPosition;    \n"
+		"varying vec4 v_color; //output vertex color \n"
 		"void main()                  \n"
 		"{                            \n"
-		"   gl_Position = vPosition;  \n"
+		"   gl_Position.x = vPosition.x;  \n"
+		"   gl_Position.y = vPosition.y;  \n"
+		"   gl_Position.z = vPosition.z;  \n"
+		"   gl_Position.w = 1.0;  \n"
+" const float MODULOf=80.0; \n"
+	"	if (vPosition.w == 0.0) \n"
+	"		v_color= vec4 (1.0, 0.0, 0.0 , 1.0); \n"
+	"	else                                         \n"
+	"		v_color= vec4 (0.0, 0.0, 1.0, 1.0 ); \n"
 		"}                            \n";
 
+
+
+
 	GLbyte fShaderStr[] =  
-		"precision Color  int;\n"\
-		"uniform float Scale;\n"
+		"precision mediump float;\n"\
+		"varying vec4 v_color; \n"
 		"void main()                                  \n"
 		"{  \n"
-			"if (Color == 0) \n"
-			"	gl_FragColor = vec4 ( 1.0, 0.0, 0.0, 1.0 );\n"
-			"else \n"
-			"	gl_FragColor = vec4 ( 1.0, 1.0, 0.0, 1.0 );\n"	                                     
-		"  gl_FragColor = vec4 ( 1.0, 0.0, 0.0, 1.0 );\n"
-		"}                                            \n";
+			"	gl_FragColor = v_color;\n"	                                     
+			"}                                            \n";
 
 	GLuint vertexShader;
 	GLuint fragmentShader;
@@ -221,6 +257,7 @@ int Init ( ESContext *esContext )
 	if ( programObject == 0 )
 		return 0;
 
+
 	glAttachShader ( programObject, vertexShader );
 	glAttachShader ( programObject, fragmentShader );
 
@@ -230,13 +267,7 @@ int Init ( ESContext *esContext )
 	// Link the program
 	glLinkProgram ( programObject );
 
-	//Trouve la position de la variable color du shader
-	locColor = glGetUniformLocation(programObject, "Color");
-	if (locColor != -1)
-	{	
-   		printf("erreur de recuperation de la variable Uniform Color \n");
-		exit(0);
-	}
+
 
 	// Check the link status
 	glGetProgramiv ( programObject, GL_LINK_STATUS, &linked );
@@ -265,6 +296,8 @@ int Init ( ESContext *esContext )
 	userData->programObject = programObject;
 
 	glClearColor ( 0.0f, 0.0f, 0.0f, 0.0f );
+
+	
 	return GL_TRUE;
 }
 
@@ -441,7 +474,7 @@ if (!checkSuccess(clEnqueueUnmapMemObject(commandQueue, memoryObjects[0], popenc
 	glUseProgram ( userData->programObject );
 
 	// Load the vertex data
-	glVertexAttribPointer ( 0, 3, GL_FLOAT, GL_FALSE, 0,vVertices );
+	glVertexAttribPointer ( 0, 4, GL_FLOAT, GL_FALSE, 0,vVertices );
 	glEnableVertexAttribArray ( 0 );
 
 	glDrawArrays ( GL_POINTS, 0, NB_PARTICLES );
@@ -460,9 +493,8 @@ int main ( int argc, char *argv[] )
 	int i;
 
 	list = LoadFile(FILENAME, &tailleFichier); 
-	printf("ax=%f, ay=%f, az=%f\n", list[0].px, list[0].py,	list[0].pz);
 
-
+	setColor();
 	//UpdateVertices();
 
 
@@ -603,6 +635,8 @@ int main ( int argc, char *argv[] )
 
 	if ( !Init ( &esContext ) )
 		return 0;
+
+
 
 	esRegisterDrawFunc ( &esContext, Draw );
 

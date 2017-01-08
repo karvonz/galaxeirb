@@ -1,0 +1,59 @@
+attention 0.0f
+
+ldd (-x ?)      
+
+Compilation kernel option:
+
+https://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clBuildProgram.html
+
+rajouter sortie du compilateur avec un wrapper dans le common.cpp ou dans le galaxeirb.cpp
+
+-cl-denorms-are-zero
+-cl-mad-enable
+-cl-unsafe-math-optimizations
+-cl-finite-math-only
+
+
+-cl-std=CL1.2 pour voir si driver execute bien du 1.2
+
+clinfo pour lancer sur CPU ??
+
+Récupérer les erreurs/ sortie du compilateur : https://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clGetProgramBuildInfo.html (param CL_PROGRAM_BUILD_LOG)
+
+
+Récupérer le binaire : https://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clGetProgramInfo.html (param_name == CL_PROGRAM_BINARY_SIZES, puis malloc en conséquence, puis param_name == CL_PROGRAM_BINARIES)
+
+Me préciser si ce n'est pas assez clair.
+Bon courage 😉
+
+
+Le 8/01
+
+benchmark
+sans option v4 couleur OK: 184 FPS
+ldd =>>> pas clair libopenCL /usr/lib/arm-linux-gnueabihf/libOpenCL.so (a demander au prof)
+
+V5 modification sur les FPS pour opti les calculs changement double float
+FPS 184 FPS en moy (pas d'amélioration)
+
+common.cpp option sur buildProgramm
+option 
+-cl-mad-enable         : 184 FPS
+-cl-fast-relaxed-math  : 199 FPS
+-cl-mad-enable + -cl-fast-relaxed-math : 200FPS
+-cl-mad-enable + -cl-fast-relaxed-math + -cl-no-signed-zeros: 203FPS
+
+-cl-denorms-are-zero -cl-mad-enable + -cl-fast-relaxed-math + -cl-no-signed-zeros: 200FPS (moins bien)
+
+tentative d'optimisation de la compilation de common.cpp avec ajout de -O (1,2 ou 3) plantage de la compilation de falaxeirb ensuite, ref indefinie vers ...)
+
+
+
+Analyse de conso avec l'ecran tactile connecté
+Au boot :  entre 5 et 10W
+non logué : 4.9W 1A
+loggué sans rien lancé : 6.5W environ 1.3A 
+galaxeirb v5 lancé : 7.5W 1.5A
+
+
+
