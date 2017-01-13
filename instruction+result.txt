@@ -49,7 +49,7 @@ tentative d'optimisation de la compilation de common.cpp avec ajout de -O (1,2 o
 
 
 
-Analyse de conso avec l'ecran tactile connecté
+Analyse de conso avec l'ecran tactile connecté à la carte
 Au boot :  entre 5 et 10W
 non logué : 4.9W 1A
 loggué sans rien lancé : 6.5W environ 1.3A 
