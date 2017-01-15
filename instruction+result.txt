@@ -55,5 +55,10 @@ non logué : 4.9W 1A
 loggué sans rien lancé : 6.5W environ 1.3A 
 galaxeirb v5 lancé : 7.5W 1.5A
 
+Sur mon PC:
+2000FPS V6 shared 1024 particules
+35 FPS 40000 particules
+
+
 
 
